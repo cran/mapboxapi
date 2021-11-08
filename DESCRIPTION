@@ -1,8 +1,8 @@
 Package: mapboxapi
 Type: Package
 Title: R Interface to 'Mapbox' Web Services
-Date: 2020-09-29
-Version: 0.2
+Date: 2021-11-08
+Version: 0.3
 Authors@R: 
     c(person(given = "Kyle", family = "Walker", email = "kyle@walker-data.com", 
     role = c("aut", "cre")))
@@ -14,15 +14,14 @@ Description: Includes support for 'Mapbox' Navigation APIs, including directions
   See <https://docs.mapbox.com/api/> for more information about the 'Mapbox' APIs.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 Depends: R (>= 3.3.0)
 Imports: httr, sf, jsonlite, purrr, curl, dplyr (>= 1.0.0), tidyr (>=
         1.0.0), aws.s3, stringi, slippymath, protolite, rlang,
-        geojsonsf, magick, leaflet
-Suggests: mapdeck, tigris, tidycensus
+        geojsonsf, magick, leaflet, units, raster, png, jpeg
+Suggests: mapdeck, tigris, tidycensus, tmap, ggspatial
 RoxygenNote: 7.1.1
 NeedsCompilation: no
-Packaged: 2020-09-29 10:15:09 UTC; kyle
+Packaged: 2021-11-08 16:13:26 UTC; kyle
 Author: Kyle Walker [aut, cre]
 Repository: CRAN
-Date/Publication: 2020-10-05 11:20:02 UTC
+Date/Publication: 2021-11-08 16:50:02 UTC
