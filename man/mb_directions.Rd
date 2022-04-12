@@ -10,6 +10,7 @@ mb_directions(
   destination = NULL,
   profile = "driving",
   output = "sf",
+  depart_at = NULL,
   alternatives = NULL,
   annotations = NULL,
   bearings = NULL,
@@ -44,6 +45,8 @@ mb_directions(
 \item{profile}{One of "driving" (the default), "driving-traffic", "walking", or "cycling".}
 
 \item{output}{One of "sf" (the default), which returns an sf LINESTRING representing the route geometry, or "full", which returns the full request from the Directions API as a list.}
+
+\item{depart_at}{(optional) For the "driving" or "driving-traffic" profiles, the departure date and time to reflect historical traffic patterns.  If "driving-traffic" is used, live traffic will be mixed in with historical traffic for dates/times near to the current time. Should be specified as an ISO 8601 date/time, e.g. \code{"2022-03-31T09:00"}.}
 
 \item{alternatives}{Whether or not to return alternative routes with your request. If TRUE, a list of up to 3 possible routes will be returned.}
 
@@ -101,7 +104,7 @@ library(mapboxapi)
 library(leaflet)
 
 my_route <- mb_directions(
- origin = "10 Avenue de Wagram, 75008 Paris France",
+  origin = "10 Avenue de Wagram, 75008 Paris France",
   destination = "59 Rue de Tocqueville, 75017 Paris France",
   profile = "cycling",
   steps = TRUE,
@@ -109,9 +112,10 @@ my_route <- mb_directions(
 )
 
 leaflet(my_route) \%>\%
-  addMapboxTiles(style_id = "light-v9",
-                 username = "mapbox") \%>\%
+  addMapboxTiles(
+    style_id = "light-v9",
+    username = "mapbox"
+  ) \%>\%
   addPolylines()
-
 }
 }

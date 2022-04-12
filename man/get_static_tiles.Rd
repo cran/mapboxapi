@@ -9,6 +9,7 @@ get_static_tiles(
   zoom,
   style_id,
   username,
+  style_url = NULL,
   scaling_factor = c("1x", "2x"),
   buffer_dist = 5000,
   crop = TRUE,
@@ -30,6 +31,8 @@ WGS84 longitude/latitude coordinates and be in the order
 \item{style_id}{A Mapbox style ID; retrieve yours from your Mapbox account.}
 
 \item{username}{A Mapbox username.}
+
+\item{style_url}{A Mapbox style URL.}
 
 \item{scaling_factor}{The scaling factor to use; one of \code{"1x"} or \code{"2x"}.}
 
@@ -74,7 +77,8 @@ tm_shape(ny_tiles) +
   tm_shape(ny_tracts) +
   tm_polygons(alpha = 0.5, col = "navy") +
   tm_credits("Basemap (c) Mapbox, (c) OpenStreetMap",
-             position = c("RIGHT", "BOTTOM"))
+    position = c("RIGHT", "BOTTOM")
+  )
 
 # ggplot2 usage:
 ggplot() +
@@ -82,7 +86,6 @@ ggplot() +
   geom_sf(data = ny_tracts, fill = "navy", alpha = 0.5) +
   theme_void() +
   labs(caption = "Basemap (c) Mapbox, (c) OpenStreetMap")
-
 }
 
 }
