@@ -9,24 +9,27 @@ mb_matrix(
   destinations = NULL,
   profile = "driving",
   fallback_speed = NULL,
-  access_token = NULL,
-  duration_output = "minutes"
+  output = c("duration", "distance"),
+  duration_output = c("minutes", "seconds"),
+  access_token = NULL
 )
 }
 \arguments{
-\item{origins}{The input coordinates of your request.  Acceptable inputs include a list of
-coordinate pair vectors in \code{c(x, y)} format or an sf object.
+\item{origins}{The input coordinates of your request. Acceptable inputs include a list of
+coordinate pair vectors in \code{c(x, y)} format or an \code{sf} object.
 For sf linestrings or polygons, the distance between centroids will be taken.}
 
-\item{destinations}{The destination coordinates of your request.  If \code{NULL} (the default), a many-to-many matrix using \code{origins} will be returned.}
+\item{destinations}{The destination coordinates of your request. If \code{NULL} (the default), a many-to-many matrix using \code{origins} will be returned.}
 
 \item{profile}{One of "driving" (the default), "driving-traffic", "walking", or "cycling".}
 
-\item{fallback_speed}{A value expressed in kilometers per hour used to estimate travel time when a route cannot be found between locations.  The returned travel time will be based on the straight-line estimate of travel between the locations at the specified fallback speed.}
+\item{fallback_speed}{A value expressed in kilometers per hour used to estimate travel time when a route cannot be found between locations. The returned travel time will be based on the straight-line estimate of travel between the locations at the specified fallback speed.}
 
-\item{access_token}{A Mapbox access token (required)}
+\item{output}{one of \code{"duration"} (the default), which will be measured in either minutes or seconds (depending on the value of \code{duration_output}), or \code{"distance"}, which will be returned in meters.}
 
 \item{duration_output}{one of \code{"minutes"} (the default) or \code{"seconds"}}
+
+\item{access_token}{A Mapbox access token (required)}
 }
 \value{
 An R matrix of source-destination travel times.
