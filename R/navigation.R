@@ -9,6 +9,8 @@
 #' @param output one of \code{"duration"} (the default), which will be measured in either minutes or seconds (depending on the value of \code{duration_output}), or \code{"distance"}, which will be returned in meters.
 #' @param duration_output one of \code{"minutes"} (the default) or \code{"seconds"}
 #' @param access_token A Mapbox access token (required)
+#' @param depart_at (optional) For the "driving" or "driving-traffic" profiles, the departure date and time to reflect historical traffic patterns. If "driving-traffic" is used, live traffic will be mixed in with historical traffic for dates/times near to the current time. Should be specified as an ISO 8601 date/time, e.g. \code{"2023-03-31T09:00"}. The time must be set to the current time or in the future.
+#' @param allow_large_matrix \code{mb_matrix()} will prevent the user from calculating large travel-time matrices (greater than 25x25) by default, as they may lead to unexpected charges.  If the user sets this argument to \code{TRUE}, \code{mb_matrix()} will bypass this error and calculate the large matrix for the user.  Defaults to \code{FALSE}.
 #'
 #' @return An R matrix of source-destination travel times.
 #'
@@ -41,7 +43,9 @@ mb_matrix <- function(origins,
                       fallback_speed = NULL,
                       output = c("duration", "distance"),
                       duration_output = c("minutes", "seconds"),
-                      access_token = NULL)
+                      access_token = NULL,
+                      depart_at = NULL,
+                      allow_large_matrix = FALSE)
                       {
 
   access_token <- get_mb_access_token(access_token)
@@ -99,13 +103,14 @@ mb_matrix <- function(origins,
     chunk <- FALSE
   }
 
-  # Specify chunking logic. Scenario 1: origins exceed limit, destinations do not
-  # This scenario comes up when both origins and destinations are specified.
+  # Specify chunking logic.
   if (chunk) {
     message("Splitting your matrix request into smaller chunks and re-assembling the result.")
     # Define slow matrix function
     mb_matrix_limited <- purrr::slowly(mb_matrix, rate = rate_delay(60 / rate_limit))
 
+    # Scenario 1: origins exceed limit, destinations do not
+    # This scenario comes up when both origins and destinations are specified.
     if (!is.null(destinations) && dest_size < coord_limit && origin_size >= coord_limit) {
       chunk_size <- coord_limit - dest_size
       if (any(grepl("^sf", class(origins)))) {
@@ -124,10 +129,11 @@ mb_matrix <- function(origins,
                 fallback_speed = fallback_speed,
                 access_token = access_token,
                 output = output,
-                duration_output = duration_output
+                duration_output = duration_output,
+                depart_at = depart_at
               )
             )
-          }) %>%
+          }, .progress = TRUE) %>%
           purrr::reduce(rbind)
         return(matrix_output)
       } else {
@@ -142,9 +148,10 @@ mb_matrix <- function(origins,
               fallback_speed = fallback_speed,
               access_token = access_token,
               output = output,
-              duration_output = duration_output
+              duration_output = duration_output,
+              depart_at = depart_at
             )
-          }) %>%
+          }, .progress = TRUE) %>%
           purrr::reduce(rbind)
         return(matrix_output)
       }
@@ -169,10 +176,11 @@ mb_matrix <- function(origins,
                 fallback_speed = fallback_speed,
                 access_token = access_token,
                 output = output,
-                duration_output = duration_output
+                duration_output = duration_output,
+                depart_at = depart_at
               )
             )
-          }) %>%
+          }, .progress = TRUE) %>%
           purrr::reduce(cbind)
         return(matrix_output)
       } else {
@@ -187,20 +195,159 @@ mb_matrix <- function(origins,
               fallback_speed = fallback_speed,
               access_token = access_token,
               output = output,
-              duration_output = duration_output
+              duration_output = duration_output,
+              depart_at = depart_at
             )
-          }) %>%
+          }, .progress = TRUE) %>%
           purrr::reduce(cbind)
         return(matrix_output)
       }
-    }
-    # Scenario 3: Both origins _and_ destinations exceed limit
+    } else if (coord_size > coord_limit && origin_size < coord_limit && dest_size < coord_limit) {
+      # Scenario 3 (issue #42): the sum of origin and destination sizes are below the coordinate limit,
+      # but neither are uniquely.
+      if (origin_size > dest_size) {
+        chunk_size <- coord_limit - dest_size
+        if (any(grepl("^sf", class(origins)))) {
+          if (sf::st_geometry_type(origins, by_geometry = FALSE) != "POINT") {
+            message("Using feature centroids for origins")
+          }
+          matrix_output <- origins %>%
+            dplyr::mutate(ix = c(0, rep(1:(nrow(origins) - 1) %/% chunk_size))) %>%
+            split(.$ix) %>%
+            purrr::map(., ~ {
+              suppressMessages(
+                mb_matrix_limited(
+                  origins = .x,
+                  destinations = destinations,
+                  profile = profile,
+                  fallback_speed = fallback_speed,
+                  access_token = access_token,
+                  output = output,
+                  duration_output = duration_output,
+                  depart_at = depart_at
+                )
+              )
+            }, .progress = TRUE) %>%
+            purrr::reduce(rbind)
+          return(matrix_output)
+        } else {
+          ix <- c(0, rep(1:(length(origins) - 1) %/% chunk_size))
+          matrix_output <- origins %>%
+            split(.$ix) %>%
+            purrr::map(., ~ {
+              mb_matrix_limited(
+                origins = .x,
+                destinations = destinations,
+                profile = profile,
+                fallback_speed = fallback_speed,
+                access_token = access_token,
+                output = output,
+                duration_output = duration_output,
+                depart_at = depart_at
+              )
+            }, .progress = TRUE) %>%
+            purrr::reduce(rbind)
+          return(matrix_output)
+        }
+      } else if (origin_size < dest_size) {
+        chunk_size <- coord_limit - origin_size
+        if (any(grepl("^sf", class(destinations)))) {
+          if (sf::st_geometry_type(origins, by_geometry = FALSE) != "POINT") {
+            message("Using feature centroids for destinations")
+          }
+          matrix_output <- destinations %>%
+            dplyr::mutate(ix = c(0, rep(1:(nrow(destinations) - 1) %/% chunk_size))) %>%
+            split(.$ix) %>%
+            purrr::map(., ~ {
+              suppressMessages(
+                mb_matrix_limited(
+                  origins = origins,
+                  destinations = .x,
+                  profile = profile,
+                  fallback_speed = fallback_speed,
+                  access_token = access_token,
+                  output = output,
+                  duration_output = duration_output,
+                  depart_at = depart_at
+                )
+              )
+            }, .progress = TRUE) %>%
+            purrr::reduce(cbind)
+          return(matrix_output)
+        } else {
+          ix <- c(0, rep(1:(length(destinations) - 1) %/% chunk_size))
+          matrix_output <- destinations %>%
+            split(ix) %>%
+            purrr::map(., ~ {
+              mb_matrix_limited(
+                origins = origins,
+                destinations = .x,
+                profile = profile,
+                fallback_speed = fallback_speed,
+                access_token = access_token,
+                output = output,
+                duration_output = duration_output,
+                depart_at = depart_at
+              )
+            }, .progress = TRUE) %>%
+            purrr::reduce(cbind)
+          return(matrix_output)
+        }
+      }
+    } else if ((origin_size > coord_limit && dest_size > coord_limit) || (origin_size > coord_limit && is.null(destinations))) {
+    # Scenario 4: Both origins _and_ destinations exceed limit
     # Can be when destinations are specified, or left blank with origins as many-to-many
     # Idea: split the destinations into chunks. Then, the origin walks through the first chunk,
     # then the second, then the third, etc. until the full matrix is assembled.
-    # This will take a bit of work
-  } else if ((origin_size > coord_limit && dest_size > coord_limit) || (origin_size > coord_limit && is.null(destinations))) {
-    stop("Your matrix request is too large. Please split up your request into smaller pieces; we plan to support this size in a future release.")
+    # The function will need to call itself to get this to work, so let's try it.
+
+      if (!allow_large_matrix) {
+        rlang::abort(message = c("You have requested a large travel-time matrix which may incur charges to your Mapbox account.",
+                                 "i" = "To calculate this matrix, re-run `mb_matrix()` with the argument\n`allow_large_matrix = TRUE`.",
+                                 "i" = "The limit for Mapbox's free tier is 100,000 matrix elements per month,\n equivalent to one 316x316 travel-time matrix.",
+                                 "i" = "Please visit https://www.mapbox.com/pricing for more information."))
+      } else {
+        if (any(grepl("^sf", class(destinations)))) {
+          matrix_output <- destinations %>%
+            dplyr::mutate(ix = dplyr::ntile(n = coord_limit - 1)) %>%
+            split(~ix) %>%
+            purrr::map(., ~ {
+              suppressMessages(
+                mb_matrix(
+                  origins = origins,
+                  destinations = .x,
+                  profile = profile,
+                  fallback_speed = fallback_speed,
+                  access_token = access_token,
+                  output = output,
+                  duration_output = duration_output,
+                  depart_at = depart_at
+                )
+              )
+            }, .progress = TRUE) %>%
+            purrr::reduce(cbind)
+          return(matrix_output)
+        } else {
+          ix <- c(0, rep(1:(length(destinations) - 1) %/% coord_limit - 1))
+          matrix_output <- destinations %>%
+            split(ix) %>%
+            purrr::map(., ~ {
+              mb_matrix(
+                origins = origins,
+                destinations = .x,
+                profile = profile,
+                fallback_speed = fallback_speed,
+                access_token = access_token,
+                output = output,
+                duration_output = duration_output,
+                depart_at = depart_at
+              )
+            }, .progress = TRUE) %>%
+            purrr::reduce(cbind)
+          return(matrix_output)
+        }
+      }
+    }
   }
 
   # Specify fallback speeds based on travel profile, if fallback speed is not provided
@@ -350,7 +497,8 @@ mb_matrix <- function(origins,
       sources = origin_ix,
       destinations = destination_ix,
       annotations = output,
-      fallback_speed = fallback_speed
+      fallback_speed = fallback_speed,
+      depart_at = depart_at
     )
   )
 
@@ -376,9 +524,6 @@ mb_matrix <- function(origins,
     }
 
   }
-
-
-
 
 }
 
@@ -446,6 +591,10 @@ mb_isochrone <- function(location,
                          id_column = NULL) {
   access_token <- get_mb_access_token(access_token)
 
+  # if (!is.null(depart_at)) {
+  #   warning("The `depart_at` parameter is no longer supported for `mb_isochrone()`; returning isochrones under typical traffic conditions.")
+  # }
+
   # If distance is supplied, time should be set to NULL
   if (!is.null(distance)) {
     time <- NULL
@@ -510,7 +659,7 @@ mb_isochrone <- function(location,
         output = "sf"
       ) %>%
         dplyr::mutate(id = .y)
-    }) %>%
+    }, .progress = TRUE) %>%
       dplyr::bind_rows()
   }
 
@@ -650,7 +799,7 @@ mb_isochrone <- function(location,
           output = "sf",
           keep_color_cols = keep_color_cols
         )
-      }) %>%
+      }, .progress = TRUE) %>%
         dplyr::bind_rows() %>%
         # data.table::rbindlist() %>%
         # st_as_sf(crs = 4326) %>%
@@ -703,7 +852,7 @@ mb_isochrone <- function(location,
           output = "sf",
           keep_color_cols = keep_color_cols
         )
-      }) %>%
+      }, .progress = TRUE) %>%
         dplyr::bind_rows() %>%
         # data.table::rbindlist() %>%
         # st_as_sf(crs = 4326) %>%

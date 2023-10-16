@@ -1,8 +1,8 @@
 Package: mapboxapi
 Type: Package
 Title: R Interface to 'Mapbox' Web Services
-Date: 2022-09-15
-Version: 0.5
+Date: 2023-10-13
+Version: 0.5.3
 Authors@R: 
     c(person(given = "Kyle", family = "Walker", email = "kyle@walker-data.com", 
     role = c("aut", "cre")), 
@@ -24,13 +24,13 @@ Imports: httr, sf, jsonlite, purrr, curl, dplyr (>= 1.0.0), tidyr (>=
         geojsonsf, magick, leaflet, units, raster, png, jpeg
 Suggests: ggspatial, grDevices, mapdeck, tigris, tidycensus, tmap,
         mapboxer, testthat (>= 3.0.0)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2022-09-15 14:42:16 UTC; kyle
+Packaged: 2023-10-16 20:00:01 UTC; kyle
 Author: Kyle Walker [aut, cre],
   Eli Pousson [ctb],
   Anthony North [ctb, cph],
   Miles McBain [ctb]
 Repository: CRAN
-Date/Publication: 2022-09-15 16:06:12 UTC
+Date/Publication: 2023-10-16 20:20:02 UTC

@@ -125,7 +125,7 @@ These functions wrap \code{\link[=static_mapbox]{static_mapbox()}} and \code{\li
 \href{https://r-tmap.github.io/tmap/}{{tmap}} basemaps.
 }
 \details{
-This function uses a different approach \code{\link[=get_static_tiles]{get_static_tiles()}}. Instead,
+This function uses a different approach than \code{\link[=get_static_tiles]{get_static_tiles()}}. Instead,
 \code{\link[=layer_static_mapbox]{layer_static_mapbox()}} is based largely on \code{layer_mapbox()} in the snapbox package
 (available under a \href{https://github.com/anthonynorth/snapbox/blob/master/LICENSE}{MIT license}. There
 are a few key differences between \code{\link[=layer_static_mapbox]{layer_static_mapbox()}} and
