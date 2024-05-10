@@ -2,10 +2,20 @@
 % Please edit documentation in R/mapboxapi-package.R
 \docType{package}
 \name{mapboxapi}
+\alias{mapboxapi-package}
 \alias{mapboxapi}
 \title{An R interface to Mapbox web services}
 \description{
 Use Mapbox web services APIs for spatial data science and visualization projects in R. Usage of the package is governed by the Mapbox Terms of Service.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/walkerke/mapboxapi}
+  \item \url{https://walker-data.com/mapboxapi/}
+  \item Report bugs at \url{https://github.com/walkerke/mapboxapi/issues}
+}
+
 }
 \author{
 Kyle Walker
