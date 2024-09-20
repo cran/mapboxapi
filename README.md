@@ -98,7 +98,7 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 ```
 
-<img src=tools/readme/shiny_example.png style="width: 800px">
+<img src=tools/readme/shiny-example.png style="width: 800px">
 
 #### Example 2: render large datasets as scalable vector tiles with tippecanoe
 
