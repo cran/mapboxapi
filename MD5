@@ -1,4 +1,4 @@
-5fbdeff10aa3dba30efa263a9dca550b *DESCRIPTION
+bd40d5c6cb0912744d77fae0bcf93f10 *DESCRIPTION
 41b22e36688ec8d8a3172a40e47b2046 *LICENSE
 b0c01a0f7d5e356c44e12c17b7809879 *NAMESPACE
 8668495ede01948d722bc708355065a1 *NEWS.md
@@ -9,14 +9,14 @@ d28ea3444e0d3b055f4477069d1464ae *R/maps.R
 a138a5f2198c4ec0baf3ebf5b8777697 *R/mts.R
 b52c80cce11a4c5af1be02ea8c496d5b *R/navigation.R
 b38275e74cd89ff299c742bbc5b811e3 *R/route.R
-0cdcb895a60b0ac61465fd8748e00dbd *R/search.R
+9f8217b6f12af2ceb32f0a987bb6f290 *R/search.R
 c2ee35b46427211de190478b7e6fdced *R/styles.R
 caf230de9d95955f2357bedfe6747a7c *R/sysdata.rda
 f13361c0c96393379f335863a771b6f8 *R/tippecanoe.R
-db3e66465bea157a78af95f92631edfa *R/zzz.R
+527fc7e2e72eb247244d9fd6f578bf19 *R/zzz.R
 6bed191ccea79a7b4a88398655842cd0 *README.md
-1812d64d70bef1a39230394e72242ac4 *inst/www/mapboxGeocoder.css
-12aedac778c03533b6605e0d4c874163 *inst/www/mapboxGeocoderBinding.js
+e2e83bba47bd098e3345e74fe7a49778 *inst/www/mapboxGeocoder.css
+f4159bcdb39876288bad8192c597b36a *inst/www/mapboxGeocoderBinding.js
 d20dd69cbcad088096608236b3c7b51f *man/addMapboxTiles.Rd
 a3508edbb94c2531197424c81284da15 *man/check_upload_status.Rd
 829351c68f00ce72d1c90905fee62448 *man/feature_options.Rd
@@ -26,8 +26,8 @@ a3508edbb94c2531197424c81284da15 *man/check_upload_status.Rd
 37b13c277953f47b7d16ca76a00173b0 *man/get_static_tiles.Rd
 55d9acb8d389f2c0f35a7df13508887f *man/get_style.Rd
 7e5cd1c9d4789a74be0c9fca686e390a *man/get_vector_tiles.Rd
-5c264f32ae2f0feda0958604813d7c97 *man/layer_static_mapbox.Rd
-2cb2a88a958d14865a698ee882c91937 *man/mapboxGeocoderInput.Rd
+7629a842def37a882e740ec27dedc671 *man/layer_static_mapbox.Rd
+dad2d1342743b85e9dd365b734045726 *man/mapboxGeocoderInput.Rd
 e12316e9e34f32840d8545b89b94f833 *man/mapboxapi.Rd
 a20b55f46b5bf06f4300081af4116405 *man/mb_access_token.Rd
 32d9964fe84964e0fd1dbbe3f6e42c4b *man/mb_batch_geocode.Rd
